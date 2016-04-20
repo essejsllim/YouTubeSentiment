@@ -1,0 +1,56 @@
+## ################################## ##
+## CS 366 - Computational Linguistics ##
+## Final Project Proposal             ##
+## Jesse Mills & Sam Faber Manning    ##
+## YouTube Sentiment Analysis         ##
+## ################################## ##
+
+# 1 - Problem and Motivations
+
+Problem -----
+- Design an application that scrapes a YouTube video's comments, formats them in a usable way, and then performs sentiment analysis on them, providing the user with various analytics regarding them. 
+General Trends ---
+- Positivity vs. Negativity
+- Polarization (Intensity)
+- Sentiment over time
+- Sentiment of top-level comments vs. reply comments
+- Sentiment of comments re: video vs. comments re: other comments?
+- 
+
+Motivation - 
+
+# 2 - Exisiting Work & References
+http://home.engineering.iastate.edu/~zambreno/pdf/KriZam13A.pdf
+http://www.l3s.de/~siersdorfer/sources/2010/wfp0542-siersdorfer.pdf
+https://www.aclweb.org/anthology/P/P14/P14-1118.xhtml
+
+http://ytcomments.klostermann.ca/
+
+The YouTube API has a sentiment analysis demo, but it doesn't seem to utilize an accurate sentiment analysis algorithm.
+
+# 3 - Proposed Solution(s)
+
+# 4 - Work Completed
+- Found a scraper
+- Wrote a script to POS tag the comment text (only!) from the scraped comments
+- Found a tagged corpus of YouTube comments (SenTube)
+
+# 5 - Member Responsibilities
+
+# 6 - Milestones
+
+# a - May 3
+
+# b - May 18 (Minimum)
+
+# c - May 18 (Ideal)
+
+
+Sentiment Analysis ------
+- Negation
+
+
+Algorithm Steps
+1) Scrape Comments -> Store in CSV
+2) POS tag the comment field of all the comments
+3) Sentiment
