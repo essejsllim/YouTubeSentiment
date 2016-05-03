@@ -54,112 +54,239 @@ def featurePassesFilter(feature):
         return False
     return True
 
+# Building the seed sets from which we will construct a dictionary
+def run(choice):
+    posWords = popularAdj('finalTrainingComments.txt', 'p')
+    negWords = popularAdj('finalTrainingComments.txt', 'n')
+    posWords = addToSeedSets(posWords, negWords, 'cleanTaggedComments.txt', 'p')
+    negWords = addToSeedSets(posWords, negWords, 'cleanTaggedComments.txt', 'n')
+    overlap = {x for x in posWords if x in negWords}
+    posWords = posWords - overlap
+    negWords = negWords - overlap
+    if choice == 'p':
+        return posWords
+    else:
+        
+        return negWords
+
+def popularAdj(filename, choice):
+    #open the input file
+    file = open(filename, 'r')
+    #initialize the sets for positive and negative words
+    posWords = set()
+    negWords = set()
+    #iterate through the file
+    for line in file:
+        #split the lines into sentiment and commentText
+        sent = line.split('\t')[0]
+        comment = line.split('\t')[1]
+        #split the commentText from each line into a list of tokens
+        tokList = comment.split(' ')
+        #split the tokens into word/tag
+        #due to the formatting of the ArkTagger, each tokList will
+        #start with a ' ', so we have to catch that
+        for tok in tokList:
+            try:
+                word = tok.split('_')[0]
+                tag = tok.split('_')[1]
+            except IndexError as e:
+                word = ''
+                tag = ''
+            #if the tag is some form of adjective or adverb, we add it to one of our sets
+            if tag == 'JJ' or tag == 'RB':
+                #if the comment had negative sentiment, we add it to negWords
+                if sent == ' "-1 "':
+                    negWords.add(word.lower())
+                #if the comment had positive sentiment, we add it to posWords
+                if sent == ' "1 "':
+                    posWords.add(word.lower())
+    #return either the set of positive or negative words
+    if choice == 'p':
+        return posWords
+    if choice == 'n':
+        return negWords
+
+def addToSeedSets(posSet, negSet, filename, choice):
+    file = open(filename, 'r')
+    posWords = posSet
+    negWords = negSet
+    for line in file:
+        tokenList = line.split(' ')
+        prevprevword = ''
+        prevword = ''
+        for token in tokenList:
+            try:
+                word = token.split('_')[0].lower()
+                tag = token.split('_')[1].lower()
+            except IndexError as e:
+                word = ''
+                tag = ''
+            if (tag == 'JJ' or tag == 'RB') and prevword == 'and' and (prevprevword in posSet):
+                print(word)
+                posSet.add(word.lower())
+            if (tag == 'JJ' or tag == 'RB') and prevword == 'but' and (prevprevword in posSet):
+                print(word)
+                negSet.add(word.lower())
+            if (tag == 'JJ' or tag == 'RB') and prevword == 'and' and (prevprevword in negSet):
+                print(word)
+                negSet.add(word.lower())
+            if (tag == 'JJ' or tag == 'RB') and prevword == 'but' and (prevprevword in negSet):
+                print(word)
+
+                posSet.add(word.lower())
+            prevprevword = prevword
+            prevword = word
+    if choice == 'p':
+        return posWords
+    if choice == 'n':
+        return negWords
+
 # Build a dicitonary whose keys are possible values for tokens and tags,
 # each of which is associated with the feature it represents.
 # This is where you can add specific tokens and tags that increment
 # their associated feature counts.
+posWords = {'snappy', 'favorable', 'helpfull', 'gritty', 'big', 'soothing',
+            'distinctive', 'fond', 'favourite', 'bright', 'wisely', 'epicc',
+            'interactive', 'kind', 'particularly', 'fancy', 'pleasurable',
+            'breathtaking', 'beautiful', 'gentle',
+            'excellent', 'clean', 'badass', 'dynamic', 'tough', 'finest',
+            'winning-est', 'imaginative', 'knowledgable', 'enhanced', 'discreet',
+            'duly', 'sound', 'freakin\'', 'stylish', 'grand', 'timeless',
+            'correct', 'reasonable', 'genuinly', 'convincingly', 'thrilling',
+            'concise', 'honestly', 'fricken\'', 'exponentially', 'not-douchey',
+            'mindblowing', 'original', 'effective', 'overwhelming', 'respectful',
+            'exotic', 'schweeet', 'durable', 'buttery', 'sturdy', 'elegant',
+            'real', 'interested', 'scrumptious',
+            'vivid',
+            'able', 'highly', 'unreal', 'clearly', 'discrete', 'fresh',
+            'competent', 'friggn\'', 'wise', 'compatible', 'cexy', 'loveable',
+            'minimalistic', 'useful', 'eveeerrr', 'witty', 'comedic',
+            'informative', 'incomparable', 'good', 'classy', 'speechless',
+            'greatly', 'goooood', 'friendly', 'portable', 'functional',
+            'appropriately', 'detailed', 'clever', 'creative', 'ultimate',
+            'impressive', 'beefy', 'anti-boredom', 'effing', 'fing',
+            'beautifull', 'dopeu', 'heavenly', 'precise',
+            'open', 'charming', 'genuinely', 'wondefull', 'rpetty', 'crisp',
+            'warm', 'worthy', 'appealing', 'eveeeeeeeeeer', 'carefree',
+            'clear', 'direct', 'fkn', 'graet', 'attractive', 'audible',
+            'balanced', 'fair', 'slick', 'thorough',
+            'distinguised', 'hella', 'stellar', 'revolutionary', 'evocative',
+            'sooooooo', 'pleasant', 'entertaining', 'powerful', 'valueable',
+            'seductive', 'true', 'refreshing', 'exciting', 'insanely',
+            'truthfull', 'lightweight', 'affluent', 'lucky', 'phenomenal',
+            'confident', 'niiice', 'no-nonsense', 'desirable', 'capable',
+            'professionally', 'tight', 'hott', 'realistic',
+            'eeeeeeeever', 'quality', 'positive', 'arwsome', 'unlimited',
+            'outstanding', 'hypotic', 'freak\'n', 'honest', 'factual', 'cute',
+            'sultry', 'cleverly', 'nimble', 'vast', 'quick', 'treasured',
+            'frickin', 'comfy', 'vibrant', 'bonerville', 'proffesional',
+            'pure', 'super', 'handsome', 'fast/beautiful', 'perfectly',
+            'sophisticated', 'stunningly', 'prosperous', 'accurate', 'quirky',
+            'freaken', 'unbeatable', 'complete', 'smoothly', 'free-spirited',
+            'intersting', 'adorable', 'easy-to-use', 'sexy', 'uber', 'pumped',
+            'nicely', 'genuine', 'beutifull', 'peaceful', 'priceless',
+            'inovated', 'sensual', 'qualified', 'refined', 'quickly', 'decent',
+            'reliable', 'bountiful', 'hilarious', 'happy', 'responsive', 'gr8',
+            'compact', 'thoroughly', 'awsome', 'advantageous', 'helful',
+            'also-good', 'legit', 'top', 'satisfied', 'mature', 'talented',
+            'customizable', 'excited', 'flawless', 'attractive', 'valuable',
+            'superbly', 'productive', 'fast', 'unique', 'comfortable', 'cool',
+            'remarkable', 'gently', 'pretty', 'stable', 'incredibly', 'healthy',
+            'reassuring', 'usefull', 'superb', 'tremendously', 'convenient',
+            'beautifully', 'fierce', 'beutiful', 'pleased', 'affordable', 'epic',
+            'comprehensive', 'jolly', 'forgiving', 'understated', 'delicious',
+            'sick', 'highest', 'best-in-class', 'passionated',
+            'aaawwwweeeessssooommmeeelllyyyyy', 'posh', 'brilliantly',
+            'amazingly', 'orgasmic', 'glorious', 'inspiring', 'interesting',
+            'great', 'beatiful', 'beaut', 'favorite', 'gorgeous', 'hysterical',
+            'focused', 'upbeat', 'rugged', 'happily', 'freaaaaakiiiinnnngggg',
+            'efficient', 'advanced', 'superior', 'underated', 'unmatched',
+            'perfect', 'superior/high', 'successful', 'extensive', 'safe',
+            'engaging', 'fav', 'magnificent', 'innovative', 'strong', 'excelent',
+            'addictive', 'unbiased', 'georgeous', 'groovy', 'luxurious',
+            'credible', 'sweet', 'classic', 'underrated', 'desired',
+            'well-spoken', 'intelligent', 'knowledgeable', 'stunning',
+            'dedicated', 'sik', 'wonderful', 'gooooood', 'sleek', 'consistently',
+            'welcome', 'proud', 'versatile', 'awsme', 'appropriate',
+            'fiiiinnnnneeee', 'funny', 'freaking', 'unbreakable', 'unparalleled',
+            'enjoyable', 'psyched', 'awesome-30', 'professional', 'fun',
+            'fine-tuned', 'gooood', 'amazing', 'poignant', 'phenominal',
+            'splending', 'catchy', 'slim', 'dope', 'hottt', 'ridic', 'awesome',
+            'promising', 'incredible', 'easy', 'gorgous', 'amaziin', 'neat',
+            'desireable', 'relatable', 'brilliant', 'sharp', 'tasty',
+            'best-looking', 'stoked', 'solid', 'faster', 'intuitive',
+            'sufficient', 'fantastic', 'lovely', 'lean', 'magical', 'sexxy',
+            'nice', 'smooth', 'prefect', 'ergonomic'}
+
+negWords = {'costly', 'faulty', 'weird', 'pointless', 'freaking', 'raging',
+            'worst:\'(', 'misleading', 'slowly', 'over-priced', 'clumsy', 'painful',
+            'sluggish', 'fckin', 'awkward',
+            'boooooooooooooooooooooooooooooooooooooring', 'false', 'hard',
+            'predictable', 'overrated', 'freaken', 'inferior', 'disposable', 'cheezy',
+            'pathetically', 'silly', 'unfocused', 'uneven', 'ass', 'stupid', 'horrific',
+            'cheesy', 'unbalanced', 'fucken', 'garbled', 'petty', 'uninformed',
+            'unwatchable', 'untrue', 'retarded', 'uncouth', 'creepy', 'twisted', 'desperately',
+            'filthy', 'immature', 'badly', 'inane', 'lazy', 'mediocre', 'antiquated',
+            'crappy', 'dumb', 'gay', 'rubbish', 'boring', 'clunky', 'suspicious',
+            'rubbbbbiisshh', 'ugly', 'inconvenient', 'miserably', 'obscene', 'damaging',
+            'shoddy', 'reckless', 'nasty', 'uncomfortably', 'weak', 'declining', 'slow', 'fugly',
+            'naive', 'outdated', 'weepy', 'terrible', 'foolish', 'characterless', 'dirty',
+            'intrusive', 'fake', 'backward', 'low-quality', 'disabled', 'stale', 'disgusting',
+            'angry', 'illiterate', 'awkwardly', 'poorly', 'lacklustre', 'stained', 'stupidest',
+            'fing', 'lame', 'painfully', 'usless', 'unfortunately', 'backwards', 'trashy',
+            'frigging', 'rude', 'crass', 'evil', 'f**king', 'pissed', 'inexcusable',
+            'disappointing', 'repulsive', 'useless', 'terrifying', 'messy', 'ignorant',
+            'uncomfortable', 'unacceptable', 'agry', 'ashamed', 'defective', 'old',
+            'tempermental', 'bogus', 'fucking', 'horribly', 'unfinished', 'godforsaken',
+            'unhappy', 'bored', 'shameful', 'childish', 'corny', 'negatively', 'dangerous',
+            'contrarian', 'flawed', 'skittish', 'appalling', 'plasticky',
+            'shitty-plastic-choppy-complete-copies-of-apple\'-ideas-competition', 'grainy',
+            'crippled', 'stupdily', 'baaaddd', 'lackluster', 'misinformed', 'freackn', 'greedy',
+            'anti-ergonomic', 'unfortunate', 'horrible', 'sad', 'alas', 'vile', 'dead',
+            'pathetic', 'fricken', 'brutal', 'unplayable', 'lumpy', 'infested', 'gawky', 'uneducated',
+            'boooooring', 'powerless', 'glitchy', 'broke', 'droll', 'bankrupt', 'friendless',
+            'frustratingly', 'overgrown', 'painfull', 'lousy', 'fat',' irrelevant', 'disturbed',
+            'faulty/completely', 'talentless', 'irrational', 'unprofessional', 'unfortunatly',
+            'sadly', 'fukin', 'sorry', 'bumpy', 'redundant', 'bloated', 'shameless', 'flimsy',
+            'farcical', 'superficial', 'despicable', 'idiotic', 'laggy', 'spotty',
+            'uuuuuuggggglllllyyyy', 'rotten', 'worthless', 'biased', 'sick', 'inoperable',
+            'annoying', 'awful', 'negative', 'gross', 'imperfect', 'bad', 'dumn', 'cramped',
+            'unresponsive', 'overpriced', 'boooringg', 'gayyyy', 'freakin', 'tacky', 'unusable',
+            'pretentious', 'spoiled', 'tawdry', 'cumbersome', 'illegal', 'sloowwww', 'tinny',
+            'embarrassing', 'dull', 'blurry', 'twat', 'friggin', 'incorrect', 'bitchy',
+            'unbearable', 'fuckin', 'out-dated', 'fragile', 'impractical', 'upset', 'bland',
+            'stinking', 'out-of-date', 'icky', 'fuckign', 'effin', 'difficult', 'jealous',
+            'starved', 'desperate', 'hideous', 'depressing', 'noisy', 'scared',
+            'shamelessly', 'absurd', 'embarassing', 'scary', 'gimmicky', 'obese', 'worst',
+            'choppy', 'unfair', 'poor', 'failed', 'dissapointing', 'mushy', 'deffective',
+            'unreliable', 'unsuccessful', 'nt', 'anoying', 'problematic', 'crapy', 'shitty',
+            'broken', 'ancient', 'whiny'}
+
+print(len(posWords))
+print(len(negWords))
+overlap = {x for x in posWords if x in negWords}
+posWords = posWords - overlap
+negWords = negWords - overlap
+print(len(posWords))
+print(len(negWords))
+posWords = addToSeedSets(posWords, negWords, '/home/jemills/cs366/Final_Project/Testing Corpus/thirdStageComments.txt', 'p')
+negWords = addToSeedSets(posWords, negWords, '/home/jemills/cs366/Final_Project/Testing Corpus/thirdStageComments.txt', 'n')
+print(len(posWords))
+print(len(negWords))
+overlap = {x for x in posWords if x in negWords}
+posWords = posWords - overlap
+negWords = negWords - overlap
+print(len(posWords))
+print(len(negWords))
+
 def buildFeatureDictionary():
-    dictionary = {
-        "i":"First_person_pronouns",
-        "me":"First_person_pronouns",
-        "my":"First_person_pronouns",
-        "mine":"First_person_pronouns",
-        "we":"First_person_pronouns",
-        "us":"First_person_pronouns",
-        "our":"First_person_pronouns",
-        "ours":"First_person_pronouns",
-        "you":"Second_person_pronouns",
-        "your":"Second_person_pronouns",
-        "yours":"Second_person_pronouns",
-        "u":"Second_person_pronouns",
-        "ur":"Second_person_pronouns",
-        "urs":"Second_person_pronouns",
-        "he":"Third_person_pronouns",
-        "him":"Third_person_pronouns",
-        "his":"Third_person_pronouns",
-        "she":"Third_person_pronouns",
-        "her":"Third_person_pronouns",
-        "hers":"Third_person_pronouns",
-        "it":"Third_person_pronouns",
-        "its":"Third_person_pronouns",
-        "they":"Third_person_pronouns",
-        "them":"Third_person_pronouns",
-        "their":"Third_person_pronouns",
-        "theirs":"Third_person_pronouns",
-        "CC": "Coordinating conjunctions",
-        "VBD":"Past_tense_verbs",
-        "VBN":"Past_tense_verbs",
-        "’ll":"Future_tense_verbs",
-        "will":"Future_tense_verbs",
-        "gonna":"Future_tense_verbs",
-        "won’t":"Future_tense_verbs",
-        ",":"Commas",
-        ":":"Colon_semi-colon_ellipsis",
-        "-":"Dashes",
-        "(":"Parentheses",
-        ")":"Parentheses",
-        "NN":"Common_nouns",
-        "NNS":"Common_nouns",
-        "NNP":"Proper_nouns",
-        "NNPS":"Proper_nouns",
-        "RB":"Adverbs", 
-        "RBR":"Adverbs",  
-        "RBS":"Adverbs", 
-        "WDT":"Wh_words",
-        "WP":"Wh_words",
-        "WP$":"Wh_words",
-        "WRB":"Wh_words",
-        "smh":"Modern_slang_acronyms",
-        "fwb":"Modern_slang_acronyms",
-        "lmfao":"Modern_slang_acronyms",
-        "lmao":"Modern_slang_acronyms",
-        "lms":"Modern_slang_acronyms",
-        "tbh":"Modern_slang_acronyms",
-        "rofl":"Modern_slang_acronyms",
-        "wtf":"Modern_slang_acronyms",
-        "bff":"Modern_slang_acronyms",
-        "wyd":"Modern_slang_acronyms",
-        "lylc":"Modern_slang_acronyms",
-        "brb":"Modern_slang_acronyms",
-        "atm":"Modern_slang_acronyms",
-        "imao":"Modern_slang_acronyms",
-        "sml":"Modern_slang_acronyms",
-        "btw":"Modern_slang_acronyms",
-        "bw":"Modern_slang_acronyms",
-        "imho":"Modern_slang_acronyms",
-        "fyi":"Modern_slang_acronyms",
-        "ppl":"Modern_slang_acronyms",
-        "sob":"Modern_slang_acronyms",
-        "ttyl":"Modern_slang_acronyms",
-        "imo":"Modern_slang_acronyms",
-        "ltr":"Modern_slang_acronyms",
-        "thx":"Modern_slang_acronyms",
-        "kk":"Modern_slang_acronyms",
-        "omg":"Modern_slang_acronyms",
-        "ttys":"Modern_slang_acronyms",
-        "afn":"Modern_slang_acronyms",
-        "bbs":"Modern_slang_acronyms",
-        "cya":"Modern_slang_acronyms",
-        "ez":"Modern_slang_acronyms",
-        "f2f":"Modern_slang_acronyms",
-        "gtr":"Modern_slang_acronyms",
-        "ic":"Modern_slang_acronyms",
-        "jk":"Modern_slang_acronyms",
-        "k":"Modern_slang_acronyms",
-        "ly":"Modern_slang_acronyms",
-        "ya":"Modern_slang_acronyms",
-        "nm":"Modern_slang_acronyms",
-        "np":"Modern_slang_acronyms",
-        "plz":"Modern_slang_acronyms",
-        "ru":"Modern_slang_acronyms",
-        "so":"Modern_slang_acronyms",
-        "tc":"Modern_slang_acronyms",
-        "tmi":"Modern_slang_acronyms",
-        "ym":"Modern_slang_acronyms",
-        "sol":"Modern_slang_acronyms",
-        "lol":"Modern_slang_acronyms",
-        "omg":"Modern_slang_acronyms",
-        }
+    dictionary = {}
+    for word in posWords:
+        key = {word:'Pos_words'}
+        dictionary.update(key)
+    for word in negWords:
+        key = {word:'Neg_words'}
+        dictionary.update(key)
     
     return OrderedDict(sorted(dictionary.items(), key = lambda t:t[0]))
 
@@ -170,21 +297,8 @@ def buildFeatureDictionary():
 def buildFeatureList():
 
     feature_list = [
-        "First_person_pronouns",
-        "Second_person_pronouns",
-        "Third_person_pronouns",
-        "Coordinating conjunctions",
-        "Past_tense_verbs",
-        "Future_tense_verbs",
-        "Commas",
-        "Colon_semi-colon_ellipsis",
-        "Dashes",
-        "Parentheses",
-        "Common_nouns",
-        "Proper_nouns",
-        "Adverbs",
-        "Wh_words",
-        "Modern_slang_acronyms",
+        "Pos_words",
+        "Neg_words",
         "Upper_case",
         "Average_token_length",
         "Sentiment"]
@@ -238,9 +352,14 @@ def buildFeatureVector(data,feature_list,feature_dict):
     going_to_VB = 0
 
     # Iterate over the tag_token pairs and split each pair into "tok" and "tag"
-    for item in data.split():
-        tok = item.split('_')[0]
-        tag = item.split('_')[1]
+    for item in comment.split():
+        try:
+            tok = item.split('_')[0]
+            tag = item.split('_')[1]
+        except IndexError as e:
+            tok = ''
+            tag = ''
+            print(e)
 
         # Do not add punctuation to the computation of average word length
         # TODO: check that this is working as assumed
@@ -279,12 +398,13 @@ def buildFeatureVector(data,feature_list,feature_dict):
     return feature_vector
 
 # To execute this file, run the file and then enter the command buildArff() on the Python shell command line
-def buildArff(inFileName):
+def buildArff():
     # Retrieve the path of the current directory (the one continaing this code)
     curdir = os.getcwd()
     # Create the path name to the input file, assumed to be in the current directory.
     # Change this to get the filename from input parameters 
-    infile_name = os.path.join(curdir,"test_file.txt")
+    #infile_name = os.path.join(curdir,"finalTrainingComments.txt")
+    infile_name = '/home/jemills/cs366/Final_Project/Testing Corpus/Training Data/finalData.txt'
     # Output written to a file in the current directory (by default).
     # Change this to get the filename from input parameters 
     outfile_name = "comments.arff"
@@ -296,17 +416,17 @@ def buildArff(inFileName):
     # Open the output file and write the arff header
     outfile = open(outfile_name,"w")
 
-    writeArffHeader(outfile,"tweets-sentiment",feature_list)
+    writeArffHeader(outfile,"comments-sentiment",feature_list)
 
     # Read each line of the input file (assumed each is one tweet) and build
     # a vector of feature counts for the tweet, then append to the arff file
-    infile = open(inFileName)
+    infile = open(infile_name)
     for tweet in infile:
         feature_vector = buildFeatureVector(tweet,feature_list,feature_dict)
         writeInstance(outfile,feature_list,feature_vector)
 
 #allow program to run from command line        
 if __name__ =="__main__":
-    buildArffMax(sys.argv)
+    buildArff()
 
 
